@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sistem Arsip Surat - SMAN 1 Pamukan Selatan</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/pizzip@3.1.4/dist/pizzip.js"></script>
+    <script src="https://unpkg.com/docxtemplater@3.37.12/build/docxtemplater.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #0f172a;
+            --primary-hover: #020617;
+            --accent: #eab308;
+            --bg-body: #f1f5f9;
+            --surface: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --border: #0f172a;
+            --danger: #b91c1c;
+            --success: #15803d;
+            --font-main: 'Inter', sans-serif;
+            --radius: 0px;
+            --shadow-sm: 2px 2px 0px rgba(15, 23, 42, 0.8);
+            --shadow-md: 4px 4px 0px rgba(15, 23, 42, 0.8);
+            --shadow-lg: 6px 6px 0px rgba(15, 23, 42, 0.8);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-body); color: var(--text-main); font-family: var(--font-main); line-height: 1.5; font-size: 14px; padding-bottom: 80px; }
+        header { background-color: var(--primary); color: white; border-bottom: 4px solid var(--accent); box-shadow: 0 4px 0px var(--accent); padding: 1.5rem 1rem; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 1.5rem; position: sticky; top: 0; z-index: 50; }
+        .header-logo { height: 60px; width: auto; display: block; }
+        .header-text { text-align: left; }
+        header h1 { color: white; letter-spacing: 0.05em; text-transform: uppercase; font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
+        header p { color: var(--accent); font-weight: 700; font-size: 0.8rem; text-transform: uppercase; }
+        .stats-container { max-width: 1280px; margin: 1.5rem auto 0; padding: 0 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .stat-card { background: var(--surface); padding: 1rem; border-radius: 0px; box-shadow: var(--shadow-sm); border: 2px solid var(--border); border-top: 4px solid var(--primary); display: flex; align-items: center; gap: 1rem; }
+        .stat-icon { width: 40px; height: 40px; background: rgba(15, 23, 42, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 700; }
+        .stat-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+        .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--text-main); }
+        .container { max-width: 1280px; margin: 2rem auto 0; padding: 0 1rem; display: grid; gap: 2rem; grid-template-columns: 1fr; }
+        @media (min-width: 900px) { .container { grid-template-columns: 350px 1fr; gap: 2.5rem; padding: 0 2rem; } header h1 { font-size: 1.5rem; } }
+        .card { background: var(--surface); border-radius: 0px; padding: 1.5rem; box-shadow: var(--shadow-md); border: 2px solid var(--border); border-top: 4px solid var(--primary); }
+        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid var(--border); flex-wrap: wrap; gap: 1rem; }
+        .card-header h2 { font-size: 1rem; font-weight: 700; color: var(--primary); margin-left: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .icon-box { width: 32px; height: 32px; background: rgba(15, 23, 42, 0.1); color: var(--primary); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; width: 100%; padding: 0.75rem 1rem; background: var(--primary); color: white; border: none; border-radius: 0px; font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; box-shadow: 4px 4px 0px rgba(0,0,0,1); transition: all 0.1s; }
+        .btn:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0px rgba(0,0,0,1); }
+        .btn-action { background-color: var(--surface); color: var(--text-main); border: 2px solid var(--border); padding: 0.4rem 0.8rem; border-radius: 0px; font-size: 0.75rem; cursor: pointer; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 6px; transition: all 0.1s; }
+        .btn-action:hover { background-color: var(--bg-body); border-color: var(--primary); color: var(--primary); box-shadow: 2px 2px 0px rgba(15, 23, 42, 0.5); }
+        .btn-reset { color: var(--danger); border-color: var(--danger); }
+        .btn-reset:hover { background-color: #fef2f2; }
+        .btn-sppd { color: var(--primary); border-color: var(--primary); }
+        .btn-edit { color: #d97706; border-color: #d97706; }
+        .btn-delete { color: var(--danger); border-color: var(--danger); }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.05em; }
+        .form-control { width: 100%; padding: 0.625rem 0.875rem; border: 2px solid var(--border); border-radius: 0px; font-size: 0.9rem; background-color: var(--surface); font-family: var(--font-main); color: var(--text-main); font-weight: 500; }
+        .form-control:focus { outline: none; border-color: var(--accent); box-shadow: none; }
+        .form-control[readonly] { background-color: var(--bg-body); color: var(--text-muted); border-style: dashed; font-weight: 600; }
+        select.form-control { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%230f172a'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.75rem center; background-size: 1rem; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .filter-bar { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 0.5rem; margin-bottom: 1rem; background: var(--bg-body); padding: 1rem; border: 2px solid var(--border); }
+        @media (max-width: 768px) { .filter-bar { grid-template-columns: 1fr; } }
+        .table-container { overflow-x: auto; border: 2px solid var(--border); margin-bottom: 1rem; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th { background-color: var(--primary); color: white; font-weight: 700; padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid var(--border); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
+        td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); color: var(--text-main); vertical-align: middle; font-weight: 500; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: var(--bg-body); }
+        .badge-surat { display: inline-block; padding: 0.25rem 0.6rem; font-size: 0.75rem; font-weight: 700; background-color: #0f172a; color: white; border: 2px solid var(--border); font-family: 'Courier New', monospace; }
+        @media (max-width: 768px) {
+            thead { display: none; }
+            tbody, tr, td { display: block; width: 100%; }
+            tr { background: var(--surface); border: 2px solid var(--border); margin-bottom: 1rem; padding: 1rem; box-shadow: var(--shadow-sm); }
+            td { padding: 0.5rem 0; border-bottom: 1px dashed var(--border); display: flex; justify-content: space-between; align-items: center; text-align: right; font-weight: 600; }
+            td::before { content: attr(data-label); font-weight: 700; font-size: 0.75rem; color: var(--text-muted); text-align: left; margin-right: 1rem; flex: 1; text-transform: uppercase; }
+            td:last-child { border-bottom: none; justify-content: flex-start; padding-top: 0.8rem; flex-wrap: wrap; gap: 8px; }
+            td:last-child::before { display: none; }
+        }
+        .pagination-controls { display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 2px solid var(--border); margin-top: 1rem; }
+        .btn-page { background: var(--surface); border: 2px solid var(--border); color: var(--text-main); padding: 0.4rem 0.8rem; border-radius: 0px; cursor: pointer; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 5px; flex: 1; justify-content: center; max-width: 100px; text-transform: uppercase; }
+        .btn-page:hover:not(:disabled) { background-color: var(--primary); color: white; }
+        .btn-page:disabled { opacity: 0.5; cursor: not-allowed; }
+        .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.7); align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+        .modal-overlay.show { display: flex; animation: fadeIn 0.15s ease-out; }
+        .modal-content { background-color: var(--surface); padding: 0; width: 95%; max-width: 550px; border-radius: 0px; box-shadow: 6px 6px 0px rgba(0,0,0,1); border: 2px solid var(--primary); animation: slideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1); max-height: 90vh; overflow-y: auto; }
+        .modal-content.large { max-width: 800px; }
+        .modal-header { padding: 1.25rem; text-align: center; border-bottom: 2px solid var(--border); background: var(--primary); color: white; }
+        .modal-title { font-weight: 700; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .modal-body { padding: 1.5rem; text-align: left; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 1.5rem; }
+        .btn-secondary { background: var(--bg-body); color: var(--text-main); border: 2px solid var(--border); font-weight: 700; }
+        .btn-secondary:hover { background: #e2e8f0; box-shadow: 2px 2px 0px rgba(0,0,0,0.5); }
+        .btn-primary { background: var(--primary); color: white; }
+        .sppd-section { background: #eff6ff; border: 2px solid #3b82f6; padding: 1rem; margin-bottom: 1rem; }
+        .sppd-section h4 { color: #1e40af; margin-bottom: 0.5rem; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; }
+        .am-section { background: #f0fdf4; border: 2px solid #166534; padding: 1rem; margin-bottom: 1rem; }
+        .am-section h4 { color: #166534; margin-bottom: 0.5rem; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; }
+        @keyframes fadeIn { from {opacity: 0} to {opacity: 1} }
+        @keyframes slideUp { from {transform: translateY(10px); opacity: 0} to {transform: translateY(0); opacity: 1} }
+        .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-muted); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; }
+        #toast { visibility: hidden; min-width: 250px; background-color: #0f172a; color: #fff; text-align: center; border-radius: 0px; padding: 12px 20px; position: fixed; z-index: 2000; left: 50%; bottom: 20px; transform: translateX(-50%) translateY(20px); opacity: 0; transition: all 0.3s; box-shadow: 4px 4px 0px rgba(0,0,0,1); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; border: 2px solid var(--accent); }
+        #toast.show { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
+        #toast.success { background-color: #15803d; border-color: #15803d; }
+        #toast.error { background-color: #b91c1c; border-color: #b91c1c; }
+        .hidden { display: none !important; }
+        .required { color: #b91c1c; font-weight: 700; }
+        .dropdown-surat-menu { animation: fadeIn 0.1s ease-out; border: 2px solid var(--primary); }
+        .dropdown-surat-menu button { font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.03em; }
+        .dropdown-surat-menu button:hover { background-color: var(--primary) !important; color: white !important; }
+    </style>
+</head>
+<body>
+
+<header>
+    <img src="https://578c98aa.logoku.pages.dev/LOGO SMANPANS1.png" alt="Logo SMAN 1 Pamukan Selatan" class="header-logo">
+    <div class="header-text">
+        <h1>Sistem Arsip Surat</h1>
+        <p>SMAN 1 Pamukan Selatan</p>
+    </div>
+</header>
+
+<div class="stats-container">
+    <div class="stat-card">
+        <div class="stat-icon">📄</div>
+        <div><div class="stat-label">Total Surat</div><div class="stat-value" id="statTotal">0</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">📅</div>
+        <div><div class="stat-label">Bulan Ini</div><div class="stat-value" id="statMonth">0</div></div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">🏆</div>
+        <div><div class="stat-label">Guru Aktif</div><div class="stat-value" id="statActiveGuru">0</div></div>
+    </div>
+</div>
+
+<div class="container">
+    <section class="card">
+        <div class="card-header">
+            <div style="display:flex; align-items:center;">
+                <div class="icon-box">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                </div>
+                <h2 id="formTitle">Buat Surat Baru 
+                    <button id="btnManageGuru" onclick="openGuruModal()" class="btn-action btn-manage-guru hidden" title="Kelola Data Guru">⚙️ GURU</button>
+                </h2>
+            </div>
+            <button id="btnCancelEdit" class="btn-action btn-reset" style="display:none; width:auto; padding:0.4rem 0.8rem;">BATAL EDIT</button>
+        </div>
+        
+        <form id="suratForm">
+            <input type="hidden" id="editId">
+            
+            <div id="nomorSuratGroup" class="form-group hidden">
+                <label for="nomorSuratInput">Nomor Surat</label>
+                <input type="text" id="nomorSuratInput" class="form-control" placeholder="Nomor akan otomatis dibuat sistem">
+                <div style="font-size:0.7rem; color:var(--text-muted); margin-top:4px;">*Sistem membuat nomor otomatis berdasarkan klasifikasi dan tanggal.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="namaGuru">Nama Guru / Pegawai</label>
+                <select id="namaGuru" class="form-control" required onchange="onGuruSelected()">
+                    <option value="" disabled selected>-- PILIH NAMA GURU --</option>
+                </select>
+            </div>
+
+            <div id="guruInfoBox" class="hidden" style="background:#f8fafc; border:2px solid var(--border); padding:1rem; margin-bottom:1rem; font-size:0.8rem;">
+                <div style="font-weight:700; color:var(--primary); margin-bottom:0.5rem; text-transform:uppercase;">Data Guru Terpilih:</div>
+                <div id="guruInfoContent" style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="jenisSurat">Klasifikasi Surat</label>
+                <select id="jenisSurat" class="form-control" required>
+                    <option value="" disabled selected>-- PILIH KLASIFIKASI --</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="keperluan">Perihal</label>
+                <textarea id="keperluan" class="form-control" placeholder="Contoh: Rapat MKKS" rows="3" required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="tanggalSurat">Tanggal Surat</label>
+                <input type="date" id="tanggalSurat" class="form-control" required>
+            </div>
+
+            <button type="submit" id="btnSubmitForm" class="btn">
+                <svg width="18" height="18" style="margin-right:8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                <span id="btnSubmitText">BUAT SURAT</span>
+            </button>
+        </form>
+    </section>
+
+    <section class="card">
+        <div class="card-header">
+            <div style="display:flex; align-items:center;">
+                <div class="icon-box">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                </div>
+                <h2>DATA ARSIP</h2>
+            </div>
+            
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                <button onclick="openAdminLogin()" class="btn-action" title="Pengaturan Admin">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                </button>
+
+                <div id="adminPanel" class="hidden" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                    <button onclick="window.print()" class="btn-action" title="Cetak Tabel">🖨️ CETAK</button>
+                    <button id="btnOpenTemplate" class="btn-action" title="Upload Template Surat">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg> TEMPLATE
+                    </button>
+                    <button onclick="backupData()" class="btn-action" title="Backup Data">💾 BACKUP</button>
+                    <label class="btn-action" title="Restore Data" style="cursor:pointer;">📂 RESTORE<input type="file" id="fileRestore" accept=".json" style="display:none;" onchange="restoreData(this)"></label>
+                    <button id="btnSecureReset" class="btn-action btn-reset" title="Hapus semua data">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> RESET
+                    </button>
+                </div>
+            </div>
+            
+            <div class="filter-bar">
+                <input type="text" id="filterKeyword" class="form-control" placeholder="CARI NAMA, PERIHAL, NO. SURAT..." onkeyup="applyFilters()">
+                <input type="date" id="filterDateStart" class="form-control" onchange="applyFilters()">
+                <input type="date" id="filterDateEnd" class="form-control" onchange="applyFilters()">
+                <button onclick="resetFilters()" class="btn-action btn-reset" style="padding:0.5rem;">RESET</button>
+            </div>
+
+            <div class="table-container">
+                <table id="tabelSurat">
+                    <thead>
+                        <tr>
+                            <th style="width:220px;">NOMOR SURAT</th>
+                            <th style="width:100px;">TANGGAL</th>
+                            <th>NAMA GURU</th>
+                            <th>KLASIFIKASI</th>
+                            <th>PERIHAL</th>
+                            <th style="width:140px; text-align:center;">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+                <div id="emptyState" class="empty-state">Memuat data...</div>
+            </div>
+
+            <div class="pagination-controls" id="paginationControls" style="display:none;">
+                <button id="prevPage" class="btn-page"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7 7-7-7"></path></svg></button>
+                <div id="pageInfo" style="font-size:0.85rem; color:var(--text-muted); font-weight:600;">Hal 1/1</div>
+                <button id="nextPage" class="btn-page"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button>
+            </div>
+        </section>
+    </div>
+
+    <!-- MODALS -->
+    <div id="resultModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div style="margin-bottom:0.5rem; font-size:2rem;">✅</div>
+                <div class="modal-title">BERHASIL DIBUAT</div>
+            </div>
+            <div class="modal-body">
+                <div style="background:var(--bg-body); border:2px solid var(--border); padding:1.5rem; margin:1rem 0; text-align:center;">
+                    <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; font-weight:700; margin-bottom:0.25rem;">Nomor Surat Keluar:</div>
+                    <div id="modalResultNumber" style="font-family:'Courier New',monospace; font-size:1.1rem; font-weight:700; color:var(--primary);">Loading...</div>
+                </div>
+                <div class="modal-actions">
+                    <button id="btnCopySave" class="btn btn-primary">💾 SIMPAN DATA</button>
+                    <button id="btnCancelModal" class="btn btn-secondary">BATAL</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="sppdModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">📋 BUAT SURAT SPPD</div>
+                <p style="color:rgba(255,255,255,0.8); font-size:0.75rem; margin-top:0.25rem;">LENGKAPI DETAIL KEGIATAN</p>
+            </div>
+            <div class="modal-body">
+                <div class="sppd-section">
+                    <h4>DATA SURAT TUGAS (OTOMATIS)</h4>
+                    <div class="form-group"><label>Nomor Surat</label><input type="text" id="sppdNomorSurat" class="form-control" readonly></div>
+                    <div class="form-group"><label>Perihal</label><input type="text" id="sppdHal" class="form-control" readonly></div>
+                </div>
+                <div class="form-group"><label style="color:#d97706;">Jabatan (Dapat Diedit)</label><input type="text" id="sppdJabatan" class="form-control"></div>
+                <div class="form-group"><label>Dasar SPPD</label><input type="text" id="sppdDasar" class="form-control" placeholder="Contoh: 053/MKKS-SMA-KTB/2026"></div>
+                <div class="form-group"><label>Tempat Tujuan</label><input type="text" id="sppdTempat" class="form-control" placeholder="Lokasi Kegiatan"></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Tgl Mulai</label><input type="date" id="sppdTglKegiatanMulai" class="form-control"></div>
+                    <div class="form-group"><label>Tgl Akhir</label><input type="date" id="sppdTglKegiatanAkhir" class="form-control"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Jam Mulai</label><input type="time" id="sppdJamMulai" class="form-control" value="08:00"></div>
+                    <div class="form-group"><label>Lama Perjalanan</label><input type="text" id="sppdLama" class="form-control" value="2 Hari"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Tgl Berangkat</label><input type="date" id="sppdTglBerangkat" class="form-control"></div>
+                    <div class="form-group"><label>Tgl Kembali</label><input type="date" id="sppdTglKembali" class="form-control"></div>
+                </div>
+                <div class="form-group"><label>Tanggal Surat SPPD</label><input type="date" id="sppdTglSurat" class="form-control"></div>
+                <div class="modal-actions">
+                    <button id="btnDownloadSPPD" class="btn btn-primary"><svg width="18" height="18" style="margin-right:8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg> DOWNLOAD SPPD</button>
+                    <button id="btnCloseSPPD" class="btn btn-secondary">TUTUP</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="aktifMengajarModal" class="modal-overlay">
+        <div class="modal-content" style="max-width:580px;">
+            <div class="modal-header" style="background:#166534; border-bottom-color:#166534;">
+                <div class="modal-title">📚 SURAT AKTIF MENGAJAR</div>
+                <p style="color:rgba(255,255,255,0.9); font-size:0.75rem; margin-top:0.25rem;">DATA GURU OTOMATIS TERISI</p>
+            </div>
+            <div class="modal-body">
+                <div class="am-section">
+                    <h4>✅ DATA SURAT (OTOMATIS)</h4>
+                    <div class="form-group" style="margin-bottom:0.5rem;"><label>Nomor Surat</label><input type="text" id="amNoSurat" class="form-control" readonly style="background:#fff; font-weight:700; color:#166534;"></div>
+                    <div class="form-group" style="margin-bottom:0;"><label>Nama Guru</label><input type="text" id="amNama" class="form-control" readonly style="background:#fff; font-weight:700; color:#166534;"></div>
+                </div>
+
+                <div style="background:#fffbeb; border:2px solid #d97706; padding:1rem; margin-bottom:1rem;">
+                    <h4 style="color:#92400e; margin-bottom:0.75rem; font-size:0.85rem; font-weight:700; text-transform:uppercase;">👤 DATA GURU (OTOMATIS - BISA DIEDIT)</h4>
+                    <div class="form-group"><label>Tempat, Tanggal Lahir <span class="required">*</span></label><input type="text" id="amTtl" class="form-control" placeholder="Contoh: Banjarmasin, 15 Maret 1990" style="border-left:4px solid #d97706;"></div>
+                    <div class="form-row">
+                        <div class="form-group"><label>NUPTK <span class="required">*</span></label><input type="text" id="amNuptk" class="form-control" placeholder="Contoh: 1234567890123456"></div>
+                        <div class="form-group"><label>NIP</label><input type="text" id="amNip" class="form-control" readonly style="background:#f8fafc;"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Pendidikan <span class="required">*</span></label>
+                            <select id="amPendidikan" class="form-control">
+                                <option value="">-- PILIH --</option>
+                                <option value="SMA/SMK">SMA / SMK</option>
+                                <option value="D3">Diploma (D3)</option>
+                                <option value="S1">Sarjana (S1)</option>
+                                <option value="S2">Magister (S2)</option>
+                                <option value="S3">Doktor (S3)</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label>Jabatan <span class="required">*</span></label><input type="text" id="amJabatan" class="form-control" placeholder="Guru Mata Pelajaran"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Jam Mengajar/Minggu <span class="required">*</span></label><input type="number" id="amJamMengajar" class="form-control" value="24" min="1" max="40"></div>
+                        <div class="form-group"><label>TMT <span class="required">*</span></label><input type="text" id="amTmt" class="form-control" placeholder="Contoh: 29 Maret 2017"></div>
+                    </div>
+                </div>
+
+                <div style="background:#eff6ff; border:2px solid #3b82f6; padding:1rem; margin-bottom:1rem;">
+                    <h4 style="color:#1e40af; margin-bottom:0.75rem; font-size:0.85rem; font-weight:700; text-transform:uppercase;">📝 TANGGAL SURAT</h4>
+                    <div class="form-group"><label>Tanggal Surat <span class="required">*</span></label><input type="date" id="amTglSurat" class="form-control"></div>
+                </div>
+
+                <div class="modal-actions">
+                    <button id="btnDownloadAM" class="btn btn-primary" style="background:#166534; border-color:#166534;">
+                        <svg width="18" height="18" style="margin-right:8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg> DOWNLOAD SURAT
+                    </button>
+                    <button id="btnCloseAM" class="btn btn-secondary" onclick="aktifMengajarModal.classList.remove('show')">TUTUP</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="templateModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header"><div class="modal-title">UPLOAD TEMPLATE SURAT</div></div>
+            <div class="modal-body">
+                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem; font-weight:600;">Upload file <b>.docx</b> template.</p>
+                <div class="form-group">
+                    <label>JENIS TEMPLATE</label>
+                    <select id="templateJenisSelect" class="form-control" onchange="updateTemplatePlaceholder()">
+                        <option value="SPPD">📋 SPPD (Perjalanan Dinas)</option>
+                        <option value="AM">📚 AKTIF MENGAJAR (Keterangan Mengajar)</option>
+                    </select>
+                </div>
+                <div id="templateInfoBox" style="background:#eff6ff; border:2px solid #3b82f6; padding:1rem; margin-bottom:1rem;">
+                    <div style="font-size:0.7rem; color:#1e40af; font-weight:700; margin-bottom:0.5rem; text-transform:uppercase;">TAG UNTUK SPPD:</div>
+                    <div style="font-family:monospace; font-size:0.72rem; color:var(--text-muted); line-height:1.6;">{nomor_surat}, {dasar}, {hal}, {nama_guru}, {nip}, {pangkat}, {jabatan}, {hari_kegiatan}, {tanggal_kegiatan}, {tempat}, {jam_mulai}, {tanggal_surat}, {lama}, {tanggal_berangkat}, {tanggal_kembali}</div>
+                </div>
+                <div class="form-group">
+                    <label>FILE (.DOCX)</label>
+                    <input type="file" id="fileTemplateInput" accept=".docx" class="form-control">
+                </div>
+                <div id="templateStatus" style="margin-bottom:1rem; font-size:0.8rem;"></div>
+                <div class="modal-actions">
+                    <button id="btnSaveTemplate" class="btn btn-primary">💾 SIMPAN</button>
+                    <button id="btnCloseTemplate" class="btn btn-secondary">TUTUP</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="guruModal" class="modal-overlay">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <div class="modal-title">⚙️ KELOLA DATA GURU</div>
+                <p style="color:rgba(255,255,255,0.8); font-size:0.75rem;">EDIT TTL, TMT, NUPTK, DLL</p>
+            </div>
+            <div class="modal-body">
+                <div style="background:var(--bg-body); border:2px solid var(--border); padding:1rem; margin-bottom:1rem;">
+                    <div style="font-weight:700; color:var(--primary); margin-bottom:0.75rem; text-transform:uppercase; font-size:0.8rem;" id="guruFormTitle">+ TAMBAH GURU BARU</div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+                        <input type="text" id="addGuruNama" class="form-control" placeholder="Nama Guru *">
+                        <input type="text" id="addGuruNuptk" class="form-control" placeholder="NUPTK">
+                        <input type="text" id="addGuruTempatLahir" class="form-control" placeholder="Tempat Lahir">
+                        <input type="date" id="addGuruTglLahir" class="form-control">
+                        <input type="text" id="addGuruNip" class="form-control" placeholder="NIP">
+                        <input type="date" id="addGuruTmt" class="form-control" placeholder="TMT">
+                        <input type="text" id="addGuruJabatan" class="form-control" placeholder="Jabatan *" style="grid-column:span 2;">
+                        <input type="hidden" id="editGuruIndex" value="">
+                        <button onclick="saveGuru()" class="btn" style="grid-column:span 2;" id="btnSaveGuru">+ TAMBAHKAN</button>
+                    </div>
+                </div>
+                <div style="max-height:400px; overflow-y:auto; border:2px solid var(--border);">
+                    <table style="font-size:0.78rem;">
+                        <thead><tr><th style="width:30%;">NAMA</th><th style="width:20%;">NUPTK</th><th style="width:25%;">JABATAN</th><th style="text-align:center;">AKSI</th></tr></thead>
+                        <tbody id="guruTableBody"></tbody>
+                    </table>
+                </div>
+                <div class="modal-actions" style="margin-top:1rem;">
+                    <button onclick="resetGuruForm()" class="btn btn-secondary" style="flex:1;">RESET FORM</button>
+                    <button onclick="document.getElementById('guruModal').classList.remove('show')" class="btn btn-secondary" style="flex:1;">TUTUP</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="adminModal" class="modal-overlay">
+        <div class="modal-content" style="max-width:400px;">
+            <div class="modal-header"><div class="modal-title">🔐 AKSES PENGGUNA</div></div>
+            <div class="modal-body">
+                <p style="margin-bottom:1rem; color:var(--text-muted); font-weight:600;">Masukkan password admin:</p>
+                <div class="form-group"><label>PASSWORD</label><input type="password" id="adminPassInput" class="form-control" placeholder="Password..." onkeypress="handleEnterAdmin(event)"></div>
+                <div class="modal-actions">
+                    <button onclick="verifyAdminPassword()" class="btn btn-primary">BUKA AKSES</button>
+                    <button onclick="document.getElementById('adminModal').classList.remove('show')" class="btn btn-secondary">BATAL</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast">Notifikasi</div>
+
+<script>
+const klasifikasiSurat = [
+    {group:"400.3.8 Sekolah Menengah Atas",items:[
+        {code:"400.3.8.1",label:"Kurikulum"},{code:"400.3.8.2",label:"Bahan Ajar"},
+        {code:"400.3.8.3",label:"Pelatihan"},{code:"400.3.8.4",label:"Block grant"},
+        {code:"400.3.8.5",label:"Bimbingan teknis"},{code:"400.3.8.6",label:"Lomba/festival"},
+        {code:"400.3.8.7",label:"BOS"},{code:"400.3.8.8",label:"Bantuan siswa miskin"}
+    ]},
+    {group:"400.3.10 Pendidik dan Tenaga Pendidikan",items:[
+        {code:"400.3.10.1",label:"Pendataan"},{code:"400.3.10.2",label:"UKG"},
+        {code:"400.3.10.3",label:"Sertifikasi"},{code:"400.3.10.4",label:"Penilaian prestasi"},
+        {code:"400.3.10.5",label:"Penghargaan"},{code:"400.3.10.6",label:"Kesejahteraan"},
+        {code:"400.3.10.7",label:"Block grant"},{code:"400.3.10.8",label:"Bimtek"}
+    ]},
+    {group:"400.3.11 Penilaian Pendidikan",items:[
+        {code:"400.3.11",label:"Akademik"},{code:"400.3.12",label:"Non Akademik"},
+        {code:"400.3.13",label:"Sistem Informasi"}
+    ]},
+    {group:"400.3.12 Data Statistik",items:[
+        {code:"400.3.12.1",label:"Data peserta didik"},
+        {code:"400.3.12.2",label:"Data Satuan Pendidikan"}
+    ]},
+    {group:"400.3.13 Prasarana Sarana",items:[
+        {code:"400.3.13.1",label:"Prasarana"},{code:"400.3.13.2",label:"Sarana"},
+        {code:"400.3.13.3",label:"Monitoring"}
+    ]}
+];
+
+const defaultDaftarGuru = [
+    {name:"Abdul Haris, S.Pd.I",nuptk:"1737765666130192",jk:"L",tempatLahir:"Tg. Samalantakan",tglLahir:"1987-04-05",nip:"198704052025211166",tmt:"2017-03-29",jabatan:"Guru PAI",pangkat:"-"},
+    {name:"Agung Wibowo, S.Pd",nuptk:"8850760663130182",jk:"L",tempatLahir:"KLATEN",tglLahir:"1982-05-18",nip:"198205182025211113",tmt:"2017-03-29",jabatan:"Guru PKn",pangkat:"-"},
+    {name:"Ardiansyah",nuptk:"3148753654131103",jk:"L",tempatLahir:"TG. Samalantakan",tglLahir:"1975-08-16",nip:"197508162025211086",tmt:"2022-01-03",jabatan:"Guru",pangkat:"-"},
+    {name:"Dewi Satriani, S.Pd",nuptk:"8251769670130073",jk:"P",tempatLahir:"PACEKKE",tglLahir:"1991-09-19",nip:"199109192025212148",tmt:"2017-07-02",jabatan:"Guru B. Inggris",pangkat:"-"},
+    {name:"Heri Susanto, S.S",nuptk:"9039766667130333",jk:"L",tempatLahir:"Karang Indah",tglLahir:"1988-07-07",nip:"198807072025211245",tmt:"2017-03-29",jabatan:"Guru B. Inggris",pangkat:"-"},
+    {name:"Iberahim Yusran Elhuda, S.Pd",nuptk:"9133764667130173",jk:"L",tempatLahir:"Batola",tglLahir:"1986-08-01",nip:"198608012024211012",tmt:"2024-03-01",jabatan:"Guru BK",pangkat:"IX"},
+    {name:"Irhamna",nuptk:"3039760662118088",jk:"L",tempatLahir:"Tg. Samalantakan",tglLahir:"1982-07-07",nip:"198207072025211168",tmt:"2008-07-01",jabatan:"Guru TIK",pangkat:"-"},
+    {name:"Jumiati Herlina, S.Pd",nuptk:"7138771672130023",jk:"P",tempatLahir:"Tj. Samalantakan",tglLahir:"1993-08-06",nip:"199308062025212024",tmt:"2025-03-01",jabatan:"Guru B. Indonesia",pangkat:"IX"},
+    {name:"Kamarul Hidayat, S.Pd",nuptk:"3552764665130132",jk:"L",tempatLahir:"Pandulangan",tglLahir:"1986-02-20",nip:"198602202014031003",tmt:"2015-12-01",jabatan:"Guru Geografi",pangkat:"III/c"},
+    {name:"Karmilawati, S.Pd",nuptk:"0550769671130063",jk:"P",tempatLahir:"Sukadana",tglLahir:"1991-12-18",nip:"199112182025212109",tmt:"2017-03-29",jabatan:"Guru B. Indonesia",pangkat:"-"},
+    {name:"Marsyiah, S.Pd.I",nuptk:"5942770671230522",jk:"P",tempatLahir:"Tg. Samalantakan",tglLahir:"1992-06-10",nip:"199206102025212195",tmt:"2023-01-02",jabatan:"Guru",pangkat:"-"},
+    {name:"Mirwan, S.Pd",nuptk:"8046768670130073",jk:"L",tempatLahir:"Tawau",tglLahir:"1990-07-14",nip:"199007142025211031",tmt:"2025-03-01",jabatan:"Guru B. Indonesia",pangkat:"IX"},
+    {name:"Muhammad Daud, S.Pd",nuptk:"1537773674130092",jk:"L",tempatLahir:"Sukadana",tglLahir:"1995-02-05",nip:"199502052025211102",tmt:"2019-01-30",jabatan:"Guru PAI",pangkat:"-"},
+    {name:"Nita Rosiyani, S.Pd",nuptk:"0137774675230043",jk:"P",tempatLahir:"Sekandis",tglLahir:"1996-08-05",nip:"199608052025212018",tmt:"2025-03-01",jabatan:"Guru PAI",pangkat:"IX"},
+    {name:"Noor Anita Nadya, S.Pd",nuptk:"5336762664300083",jk:"P",tempatLahir:"Banjarmasin",tglLahir:"1984-10-04",nip:"198410042023212013",tmt:"2023-07-01",jabatan:"Guru Sosiologi",pangkat:"IX"},
+    {name:"Nurkamila, S.Pd",nuptk:"6558769670130053",jk:"P",tempatLahir:"Tanjung Samalantakan",tglLahir:"1991-12-26",nip:"199112262025212124",tmt:"2017-03-29",jabatan:"Guru Penjas",pangkat:"-"},
+    {name:"Nurul Hikmah, S.Pd",nuptk:"1250767668130133",jk:"P",tempatLahir:"Tg. Samalantakan",tglLahir:"1989-09-18",nip:"198909182025212144",tmt:"2016-10-02",jabatan:"Guru B. Indonesia",pangkat:"-"},
+    {name:"Paujiah, S.Si",nuptk:"2955762663300002",jk:"P",tempatLahir:"Ramban",tglLahir:"1984-06-23",nip:"198406232009032011",tmt:"2009-03-01",jabatan:"Guru Biologi",pangkat:"III/c"},
+    {name:"Rayendra Noor, S.Pd",nuptk:"1538763665200043",jk:"L",tempatLahir:"Banjarbaru",tglLahir:"1985-12-06",nip:"198512062011011003",tmt:"2011-01-01",jabatan:"Guru Ekonomi",pangkat:"III/d"},
+    {name:"Rendy Setiawan, S.Pd",nuptk:"9541769670130063",jk:"L",tempatLahir:"PELAIHARI",tglLahir:"1991-12-09",nip:"199112092019031007",tmt:"2020-03-01",jabatan:"Guru Fisika",pangkat:"-"},
+    {name:"Suyoto, S.Pd",nuptk:"3145758660200003",jk:"L",tempatLahir:"NGAWI",tglLahir:"1980-08-13",nip:"198008132006041015",tmt:"2008-02-01",jabatan:"Guru Matematika",pangkat:"III/d"},
+    {name:"Sulaeman, S.Pd",nuptk:"3459765666200013",jk:"L",tempatLahir:"Maroangin",tglLahir:"1987-11-27",nip:"198711272025211162",tmt:"2017-03-29",jabatan:"Guru Matematika",pangkat:"-"},
+    {name:"Syamsiar, S.Pd",nuptk:"7843771672130032",jk:"P",tempatLahir:"KENDARI",tglLahir:"1993-05-11",nip:"199305112024212046",tmt:"2024-03-01",jabatan:"Guru Matematika",pangkat:"IX"},
+    {name:"Tuti Hidayati, S.Pd",nuptk:"3952768671130102",jk:"P",tempatLahir:"Sukadana",tglLahir:"1990-06-20",nip:"199006202025212166",tmt:"2017-03-29",jabatan:"Guru Penjas",pangkat:"-"},
+    {name:"Wiwin Sumiati, S.Sos.",nuptk:"4348762666210003",jk:"P",tempatLahir:"Papaan",tglLahir:"1984-10-16",nip:"198410162022212005",tmt:"2022-02-01",jabatan:"Guru PKn",pangkat:"IX"}
+];
+
+let daftarGuru = [];
+let suratData = [];
+let tempSuratData = null;
+let templateSPPDBuffer = null;
+let templateAMBuffer = null;
+let currentPage = 1;
+const rowsPerPage = 2;
+let isEditing = false;
+let currentFilteredData = [];
+
+// ⚠️ ATUR URL API WORKER CLOUDFLARE ANDA DI SINI (Contoh: https://arsip-api.nama-anda.workers.dev)
+const API_BASE_URL = ""; 
+
+const form = document.getElementById('suratForm');
+const selectGuru = document.getElementById('namaGuru');
+const selectJenis = document.getElementById('jenisSurat');
+const inputNoSurat = document.getElementById('nomorSuratInput');
+const inputTglSurat = document.getElementById('tanggalSurat');
+const tableBody = document.getElementById('tableBody');
+const emptyState = document.getElementById('emptyState');
+const groupNomorSurat = document.getElementById('nomorSuratGroup');
+const guruInfoBox = document.getElementById('guruInfoBox');
+const guruInfoContent = document.getElementById('guruInfoContent');
+
+const resultModal = document.getElementById('resultModal');
+const sppdModal = document.getElementById('sppdModal');
+const aktifMengajarModal = document.getElementById('aktifMengajarModal');
+const templateModal = document.getElementById('templateModal');
+const guruModal = document.getElementById('guruModal');
+
+const btnCancelEdit = document.getElementById('btnCancelEdit');
+const btnSubmitForm = document.getElementById('btnSubmitForm');
+const btnSubmitText = document.getElementById('btnSubmitText');
+const formTitle = document.getElementById('formTitle');
+const editIdInput = document.getElementById('editId');
+
+window.findGuruFuzzy = function(searchName, nipData) {
+    if (!searchName) return null;
+    const clean = (str) => String(str).toLowerCase().replace(/[,\.\-]/g, '').replace(/\s+/g, ' ').replace(/\b(s\.?p\.?d\.?[i]?|s\.?s\.?|s\.?s\.?o\.?s\.?|s\.?s\.?i\.?|m\.?p\.?d\.?|m\.?s\.?i\.?)\b/gi, '').trim();
+    const searchClean = clean(searchName);
+    const searchWords = searchClean.split(' ').filter(w => w.length >= 2);
+    let bestMatch = null;
+    let bestScore = 0;
+    daftarGuru.forEach(guru => {
+        const guruClean = clean(guru.name);
+        if (guruClean === searchClean) { if (100 > bestScore) { bestScore = 100; bestMatch = guru; } return; }
+        if (guruClean.includes(searchClean) || searchClean.includes(guruClean)) { if (95 > bestScore) { bestScore = 95; bestMatch = guru; } return; }
+        let matchedWords = 0;
+        searchWords.forEach(word => { if (guruClean.includes(word)) matchedWords++; });
+        const wordScore = (matchedWords / Math.max(searchWords.length, 1)) * 85;
+        if (wordScore >= 40 && wordScore > bestScore) { bestScore = wordScore; bestMatch = guru; }
+    });
+    if (!bestMatch && nipData && nipData !== "-") {
+        const nipMatch = daftarGuru.find(g => g.nip === nipData || String(g.nip).replace(/\s/g,'') === String(nipData).replace(/\s/g,''));
+        if (nipMatch) bestMatch = nipMatch;
+    }
+    return bestMatch;
+};
+
+async function init() {
+    klasifikasiSurat.forEach(kat => {
+        const group = document.createElement('optgroup');
+        group.label = kat.group;
+        kat.items.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.code;
+            option.textContent = item.code + ' - ' + item.label;
+            group.appendChild(option);
+        });
+        selectJenis.appendChild(group);
+    });
+
+    await fetchGuruData();
+    inputTglSurat.valueAsDate = new Date();
+    loadTemplateFromStorage();
+    await fetchData();
+}
+
+async function fetchGuruData() {
+    try {
+        const res = await fetch(API_BASE_URL + '/api/guru');
+        let data = await res.json();
+        if (!data || data.length === 0) {
+            daftarGuru = defaultDaftarGuru;
+            saveGuruData(daftarGuru);
+        } else {
+            daftarGuru = data;
+        }
+        populateGuruDropdown();
+    } catch (e) {
+        console.error("Gagal fetch guru", e);
+        daftarGuru = defaultDaftarGuru;
+        populateGuruDropdown();
+    }
+}
+
+function populateGuruDropdown() {
+    selectGuru.innerHTML = '<option value="" disabled selected>-- PILIH NAMA GURU --</option>';
+    daftarGuru.forEach(guru => {
+        const opt = document.createElement('option');
+        opt.value = guru.name;
+        opt.textContent = guru.name + ' (' + (guru.jabatan || '-') + ')';
+        selectGuru.appendChild(opt);
+    });
+}
+
+async function saveGuruData(data) {
+    try {
+        await fetch(API_BASE_URL + '/api/guru', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+    } catch (e) { console.error(e); }
+}
+
+window.onGuruSelected = function() {
+    const selectedName = selectGuru.value;
+    if (!selectedName) { 
+        guruInfoBox.classList.add('hidden'); 
+        document.getElementById('amTtl').value = "";
+        document.getElementById('amNuptk').value = "";
+        document.getElementById('amNip').value = "";
+        document.getElementById('amJabatan').value = "";
+        document.getElementById('amTmt').value = "";
+        document.getElementById('amNama').value = "";
+        return; 
+    }
+    const guru = findGuruFuzzy(selectedName) || daftarGuru.find(g => g.name === selectedName);
+    if (!guru) { guruInfoBox.classList.add('hidden'); return; }
+
+    let ttlStr = "-";
+    if (guru.tempatLahir && guru.tglLahir) {
+        const tgl = new Date(guru.tglLahir);
+        const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+        ttlStr = guru.tempatLahir + ', ' + tgl.getDate() + ' ' + months[tgl.getMonth()] + ' ' + tgl.getFullYear();
+    }
+
+    let tmtStr = "-";
+    if (guru.tmt) {
+        const tmt = new Date(guru.tmt);
+        const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+        tmtStr = tmt.getDate() + ' ' + months[tmt.getMonth()] + ' ' + tmt.getFullYear();
+    }
+
+    guruInfoContent.innerHTML = 
+        '<div><strong>Nama:</strong> ' + guru.name + '</div>' +
+        '<div><strong>NUPTK:</strong> ' + (guru.nuptk || '-') + '</div>' +
+        '<div><strong>TTL:</strong> ' + ttlStr + '</div>' +
+        '<div><strong>NIP:</strong> ' + (guru.nip || '-') + '</div>' +
+        '<div><strong>Jabatan:</strong> ' + (guru.jabatan || '-') + '</div>' +
+        '<div><strong>TMT:</strong> ' + tmtStr + '</div>';
+    guruInfoBox.classList.remove('hidden');
+
+    document.getElementById('amTtl').value = formatTTL(guru.tempatLahir, guru.tglLahir);
+    document.getElementById('amNuptk').value = guru.nuptk || "";
+    document.getElementById('amNip').value = guru.nip || "";
+    document.getElementById('amJabatan').value = guru.jabatan || "";
+    document.getElementById('amTmt').value = formatTMT(guru.tmt);
+    document.getElementById('amNama').value = guru.name || "";
+    if (!document.getElementById('amPendidikan').value) document.getElementById('amPendidikan').value = "S1";
+};
+
+function openGuruModal() {
+    renderGuruTable();
+    resetGuruForm();
+    guruModal.classList.add('show');
+}
+
+function renderGuruTable() {
+    const tbody = document.getElementById('guruTableBody');
+    tbody.innerHTML = '';
+    daftarGuru.forEach((g, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td style="font-weight:600;">' + g.name + '</td><td style="font-family:monospace;font-size:0.75rem;">' + (g.nuptk || '-') + '</td><td>' + (g.jabatan || '-') + '</td><td style="text-align:center;"><button onclick="editGuru(' + index + ')" class="btn-action btn-edit" style="padding:0.25rem 0.5rem;font-size:0.7rem;">EDIT</button> <button onclick="deleteGuru(' + index + ')" class="btn-action btn-delete" style="padding:0.25rem 0.5rem;font-size:0.7rem;">HAPUS</button></td>';
+        tbody.appendChild(tr);
+    });
+}
+
+function resetGuruForm() {
+    document.getElementById('addGuruNama').value = '';
+    document.getElementById('addGuruNuptk').value = '';
+    document.getElementById('addGuruTempatLahir').value = '';
+    document.getElementById('addGuruTglLahir').value = '';
+    document.getElementById('addGuruNip').value = '';
+    document.getElementById('addGuruTmt').value = '';
+    document.getElementById('addGuruJabatan').value = '';
+    document.getElementById('editGuruIndex').value = '';
+    document.getElementById('guruFormTitle').textContent = '+ TAMBAH GURU BARU';
+    document.getElementById('btnSaveGuru').textContent = '+ TAMBAHKAN';
+}
+
+window.editGuru = function(index) {
+    const g = daftarGuru[index];
+    document.getElementById('addGuruNama').value = g.name || '';
+    document.getElementById('addGuruNuptk').value = g.nuptk || '';
+    document.getElementById('addGuruTempatLahir').value = g.tempatLahir || '';
+    document.getElementById('addGuruTglLahir').value = g.tglLahir || '';
+    document.getElementById('addGuruNip').value = g.nip || '';
+    document.getElementById('addGuruTmt').value = g.tmt || '';
+    document.getElementById('addGuruJabatan').value = g.jabatan || '';
+    document.getElementById('editGuruIndex').value = index;
+    document.getElementById('guruFormTitle').textContent = '✏️ EDIT DATA GURU';
+    document.getElementById('btnSaveGuru').textContent = '💾 SIMPAN PERUBAHAN';
+};
+
+window.saveGuru = function() {
+    const nama = document.getElementById('addGuruNama').value.trim();
+    const jabatan = document.getElementById('addGuruJabatan').value.trim();
+    if (!nama) return showToast("Nama Guru wajib diisi!", "error");
+    if (!jabatan) return showToast("Jabatan wajib diisi!", "error");
+
+    const editIndex = document.getElementById('editGuruIndex').value;
+    const guruData = {
+        name: nama,
+        nuptk: document.getElementById('addGuruNuptk').value.trim(),
+        tempatLahir: document.getElementById('addGuruTempatLahir').value.trim(),
+        tglLahir: document.getElementById('addGuruTglLahir').value,
+        nip: document.getElementById('addGuruNip').value.trim(),
+        tmt: document.getElementById('addGuruTmt').value,
+        jabatan: jabatan,
+        pangkat: "-"
+    };
+
+    if (editIndex !== "") {
+        daftarGuru[parseInt(editIndex)] = guruData;
+        showToast("✅ Data guru berhasil diperbarui!", "success");
+    } else {
+        daftarGuru.push(guruData);
+        showToast("✅ Guru baru berhasil ditambahkan!", "success");
+    }
+
+    saveGuruData(daftarGuru).then(() => {
+        populateGuruDropdown();
+        renderGuruTable();
+        resetGuruForm();
+    });
+};
+
+window.deleteGuru = function(index) {
+    if (confirm("Hapus data guru ini?")) {
+        daftarGuru.splice(index, 1);
+        saveGuruData(daftarGuru).then(() => {
+            populateGuruDropdown();
+            renderGuruTable();
+            showToast("Data guru dihapus", "error");
+        });
+    }
+};
+
+function toRoman(num) {
+    const roman = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1};
+    let str = '';
+    for (let i of Object.keys(roman)) {
+        let q = Math.floor(num / roman[i]);
+        num -= q * roman[i];
+        str += i.repeat(q);
+    }
+    return str;
+}
+
+function getDayName(dateString) {
+    const days = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+    const d = new Date(dateString);
+    return isNaN(d.getTime()) ? "-" : days[d.getDay()];
+}
+
+function formatDateIndoOnly(dateString) {
+    if (!dateString) return "-";
+    const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    const d = new Date(dateString);
+    return isNaN(d.getTime()) ? dateString : d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+}
+
+function formatTTL(tempat, tglStr) {
+    if (!tempat && !tglStr) return "-";
+    if (!tglStr) return tempat || "-";
+    const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    const d = new Date(tglStr);
+    return isNaN(d.getTime()) ? (tempat || "-") : tempat + ', ' + d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+}
+
+function formatTMT(tmtStr) {
+    if (!tmtStr) return "-";
+    const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    const d = new Date(tmtStr);
+    return isNaN(d.getTime()) ? tmtStr : d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+}
+
+function generateNomorSurat(kode, tglString) {
+    if (!kode || !tglString) return "";
+    const date = new Date(tglString);
+    const year = date.getFullYear();
+    const month = toRoman(date.getMonth() + 1);
+
+    let maxSeq = 0;
+    suratData.forEach(item => {
+        if (item.noSurat) {
+            try {
+                const parts = item.noSurat.split('/');
+                if (parts.length >= 4) {
+                    const seqStr = parts[1].split('-')[0];
+                    const seqInt = parseInt(seqStr, 10);
+                    if (!isNaN(seqInt)) maxSeq = Math.max(maxSeq, seqInt);
+                }
+            } catch (e) {}
+        }
+    });
+
+    const nextSeq = (maxSeq + 1).toString().padStart(3, '0');
+    return kode + '/' + nextSeq + '-SMAN 1 Pam-Sel/' + month + '/' + year;
+}
+
+function loadTemplateFromStorage() {
+    try {
+        const storedSPPD = localStorage.getItem('template_SPPD');
+        if (storedSPPD) {
+            const binaryString = window.atob(storedSPPD);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) bytes[i] = binaryString.charCodeAt(i);
+            templateSPPDBuffer = bytes;
+        }
+    } catch(e) {}
+
+    try {
+        const storedAM = localStorage.getItem('template_AM');
+        if (storedAM) {
+            const binaryString = window.atob(storedAM);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) bytes[i] = binaryString.charCodeAt(i);
+            templateAMBuffer = bytes;
+        }
+    } catch(e) {}
+    updateTemplateStatusDisplay();
+}
+
+function updateTemplatePlaceholder() {
+    const jenis = document.getElementById('templateJenisSelect').value;
+    const infoBox = document.getElementById('templateInfoBox');
+    if (jenis === 'SPPD') {
+        infoBox.innerHTML = '<div style="font-size:0.7rem;color:#1e40af;font-weight:700;margin-bottom:0.5rem;text-transform:uppercase;">TAG SPPD:</div><div style="font-family:monospace;font-size:0.72rem;color:var(--text-muted);line-height:1.6;">{nomor_surat}, {dasar}, {hal}, {nama_guru}, {nip}, {pangkat}, {jabatan}, {hari_kegiatan}, {tanggal_kegiatan}, {tempat}, {jam_mulai}, {tanggal_surat}, {lama}, {tanggal_berangkat}, {tanggal_kembali}</div>';
+        infoBox.style.background = '#eff6ff'; infoBox.style.borderColor = '#3b82f6';
+    } else {
+        infoBox.innerHTML = '<div style="font-size:0.7rem;color:#166534;font-weight:700;margin-bottom:0.5rem;text-transform:uppercase;">TAG AKTIF MENGAJAR:</div><div style="font-family:monospace;font-size:0.72rem;color:var(--text-muted);line-height:1.6;">{nomor_surat}, {nama_guru}, {ttl}, {nuptk}, {nip}, {pendidikan}, {jabatan}, {jam_mengajar}, {tmt}, {tanggal_surat}</div>';
+        infoBox.style.background = '#f0fdf4'; infoBox.style.borderColor = '#166534';
+    }
+}
+
+function updateTemplateStatusDisplay() {
+    const statusDiv = document.getElementById('templateStatus');
+    if (!statusDiv) return;
+    const hasSPPD = !!templateSPPDBuffer;
+    const hasAM = !!templateAMBuffer;
+    statusDiv.innerHTML = '<div style="display:flex;gap:10px;flex-wrap:wrap;"><div style="flex:1;min-width:150px;padding:0.5rem;font-size:0.75rem;font-weight:700;' + (hasSPPD ? 'background:#f0fdf4;border:2px solid #166534;color:#166534;' : 'background:#fef2f2;border:2px solid #b91c1c;color:#991b1b;') + '">SPPD: ' + (hasSPPD ? '✅ TERUPLOAD' : '❌ BELUM') + '</div><div style="flex:1;min-width:150px;padding:0.5rem;font-size:0.75rem;font-weight:700;' + (hasAM ? 'background:#f0fdf4;border:2px solid #166534;color:#166534;' : 'background:#fef2f2;border:2px solid #b91c1c;color:#991b1b;') + '">AKTIF MENGAJAR: ' + (hasAM ? '✅ TERUPLOAD' : '❌ BELUM') + '</div></div>';
+}
+
+document.getElementById('btnSaveTemplate').addEventListener('click', function() {
+    const file = document.getElementById('fileTemplateInput').files[0];
+    if (!file) return showToast("Pilih file .docx!", "error");
+    const jenisTemplate = document.getElementById('templateJenisSelect').value;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        try {
+            const binary = Array.from(data, byte => String.fromCharCode(byte)).join('');
+            const base64data = window.btoa(binary);
+            if (jenisTemplate === 'SPPD') {
+                localStorage.setItem('template_SPPD', base64data);
+                templateSPPDBuffer = data;
+                showToast("✅ Template SPPD tersimpan!", "success");
+            } else {
+                localStorage.setItem('template_AM', base64data);
+                templateAMBuffer = data;
+                showToast("✅ Template Aktif Mengajar tersimpan!", "success");
+            }
+            updateTemplateStatusDisplay();
+            templateModal.classList.remove('show');
+            document.getElementById('fileTemplateInput').value = "";
+        } catch (err) { showToast("❌ File terlalu besar!", "error"); }
+    };
+    reader.readAsArrayBuffer(file);
+});
+
+document.getElementById('btnOpenTemplate').addEventListener('click', () => templateModal.classList.add('show'));
+document.getElementById('btnCloseTemplate').addEventListener('click', () => templateModal.classList.remove('show'));
+
+async function fetchData() {
+    try {
+        const res = await fetch(API_BASE_URL + '/api/surat');
+        suratData = await res.json() || [];
+        currentFilteredData = suratData;
+        updateStats();
+        applyFilters();
+    } catch (e) { emptyState.textContent = "Gagal memuat data."; }
+}
+
+async function saveData(data) {
+    try {
+        await fetch(API_BASE_URL + '/api/surat', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+        return true;
+    } catch (e) { return false; }
+}
+
+form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const guruName = selectGuru.value;
+    const guruObj = daftarGuru.find(g => g.name === guruName);
+    const kode = selectJenis.value;
+    const tgl = inputTglSurat.value;
+    
+    let noSurat = isEditing ? inputNoSurat.value : generateNomorSurat(kode, tgl);
+    if (!noSurat) { showToast("Nomor Surat wajib diisi!", "error"); return; }
+
+    let labelKlasifikasi = kode;
+    klasifikasiSurat.forEach(g => {
+        const found = g.items.find(i => i.code === kode);
+        if(found) labelKlasifikasi = found.label;
+    });
+
+    const formData = {
+        id: isEditing ? parseInt(editIdInput.value) : Date.now(),
+        noSurat: noSurat,
+        guru: guruName,
+        nip: guruObj ? guruObj.nip : "",
+        pangkat: guruObj ? guruObj.pangkat : "-",
+        jabatan: guruObj ? guruObj.jabatan : "",
+        keperluan: document.getElementById('keperluan').value,
+        tgl_surat: tgl,
+        jenisCode: kode,
+        jenisLabel: labelKlasifikasi,
+        timestamp: isEditing ? (suratData.find(d => d.id == editIdInput.value)?.timestamp || Date.now()) : Date.now()
+    };
+
+    tempSuratData = formData;
+
+    if (isEditing) {
+        const index = suratData.findIndex(d => d.id === tempSuratData.id);
+        if(index !== -1) {
+            suratData[index] = tempSuratData;
+            saveData(suratData).then(() => {
+                showToast("Data berhasil diperbarui!", "success");
+                resetForm(); applyFilters(); updateStats();
+            });
+        }
+    } else {
+        document.getElementById('modalResultNumber').textContent = noSurat;
+        resultModal.classList.add('show');
+    }
+});
+
+window.editItem = function(id) {
+    const item = suratData.find(d => d.id === id);
+    if(!item) return;
+    document.getElementById('namaGuru').value = item.guru;
+    document.getElementById('jenisSurat').value = item.jenisCode;
+    document.getElementById('keperluan').value = item.keperluan;
+    document.getElementById('tanggalSurat').value = item.tgl_surat;
+    document.getElementById('nomorSuratInput').value = item.noSurat; 
+    editIdInput.value = item.id;
+
+    isEditing = true;
+    groupNomorSurat.classList.remove('hidden'); 
+    inputNoSurat.removeAttribute('readonly'); 
+    formTitle.textContent = "EDIT DATA SURAT";
+    btnSubmitText.textContent = "UPDATE DATA";
+    btnCancelEdit.style.display = "inline-flex";
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+window.deleteItem = async function(id) {
+    if(confirm('Yakin ingin menghapus data arsip ini?')) {
+        suratData = suratData.filter(item => item.id !== id);
+        const success = await saveData(suratData);
+        if(success) {
+            showToast('Data dihapus', 'error');
+            applyFilters(); updateStats();
+            if(isEditing && parseInt(editIdInput.value) === id) resetForm();
+        } else { showToast('Gagal menghapus data', 'error'); }
+    }
+};
+
+btnCancelEdit.addEventListener('click', resetForm);
+
+function resetForm() {
+    isEditing = false;
+    form.reset();
+    document.getElementById('tanggalSurat').valueAsDate = new Date();
+    editIdInput.value = "";
+    groupNomorSurat.classList.add('hidden'); 
+    inputNoSurat.value = ""; 
+    guruInfoBox.classList.add('hidden');
+    formTitle.textContent = "Buat Surat Baru";
+    btnSubmitText.textContent = "BUAT SURAT";
+    btnCancelEdit.style.display = "none";
+}
+
+function applyFilters() {
+    const keyword = document.getElementById('filterKeyword').value.toLowerCase();
+    const start = document.getElementById('filterDateStart').value;
+    const end = document.getElementById('filterDateEnd').value;
+
+    currentFilteredData = suratData.filter(item => {
+        const matchKeyword = (item.noSurat||'').toLowerCase().includes(keyword) || (item.guru||'').toLowerCase().includes(keyword) || (item.keperluan||'').toLowerCase().includes(keyword);
+        let matchDate = true;
+        if(start && item.tgl_surat < start) matchDate = false;
+        if(end && item.tgl_surat > end) matchDate = false;
+        return matchKeyword && matchDate;
+    });
+    currentPage = 1; 
+    renderTable();
+}
+
+function resetFilters() {
+    document.getElementById('filterKeyword').value = "";
+    document.getElementById('filterDateStart').value = "";
+    document.getElementById('filterDateEnd').value = "";
+    currentFilteredData = suratData;
+    renderTable();
+}
+
+window.toggleSuratDropdown = function(event, id) {
+    event.stopPropagation();
+    closeAllDropdowns();
+    const dropdown = document.getElementById('dropdownSurat_' + id);
+    if (dropdown) dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+};
+
+window.closeAllDropdowns = function() {
+    document.querySelectorAll('.dropdown-surat-menu').forEach(el => el.style.display = 'none');
+};
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.dropdown-surat-wrapper')) closeAllDropdowns();
+});
+
+window.openSppdModal = function(id) {
+    const item = suratData.find(d => d.id === id);
+    if(!item) return;
+    document.getElementById('sppdNomorSurat').value = item.noSurat;
+    document.getElementById('sppdHal').value = item.keperluan;
+    const sppd = item.sppdData || {};
+    document.getElementById('sppdJabatan').value = sppd.jabatan || item.jabatan || "";
+    document.getElementById('sppdTglBerangkat').value = sppd.tglBerangkat || "";
+    document.getElementById('sppdTglKembali').value = sppd.tglKembali || "";
+    document.getElementById('sppdTglSurat').value = sppd.tglSurat || item.tgl_surat || "";
+    document.getElementById('sppdDasar').value = sppd.dasar || ""; 
+    document.getElementById('sppdTempat').value = sppd.tempat || ""; 
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('sppdTglKegiatanMulai').value = sppd.tglMulai || today;
+    document.getElementById('sppdTglKegiatanAkhir').value = sppd.tglAkhir || today;
+    document.getElementById('sppdJamMulai').value = sppd.jamMulai || "08:00";
+    document.getElementById('sppdLama').value = sppd.lama || "2 Hari";
+    sppdModal.classList.add('show');
+};
+
+document.getElementById('btnDownloadSPPD').addEventListener('click', async function() {
+    if(!templateSPPDBuffer) {
+        alert("❌ Template SPPD belum diupload!");
+        sppdModal.classList.remove('show');
+        templateModal.classList.add('show');
+        document.getElementById('templateJenisSelect').value = 'SPPD';
+        updateTemplatePlaceholder();
+        return;
+    }
+    const targetNoSurat = document.getElementById('sppdNomorSurat').value;
+    const index = suratData.findIndex(d => d.noSurat === targetNoSurat);
+    if(index === -1) { alert("Data surat tidak ditemukan!"); return; }
+
+    const currentSppdData = {
+        dasar: document.getElementById('sppdDasar').value,
+        tempat: document.getElementById('sppdTempat').value,
+        tglMulai: document.getElementById('sppdTglKegiatanMulai').value,
+        tglAkhir: document.getElementById('sppdTglKegiatanAkhir').value,
+        jamMulai: document.getElementById('sppdJamMulai').value,
+        lama: document.getElementById('sppdLama').value,
+        tglBerangkat: document.getElementById('sppdTglBerangkat').value,
+        tglKembali: document.getElementById('sppdTglKembali').value,
+        jabatan: document.getElementById('sppdJabatan').value,
+        tglSurat: document.getElementById('sppdTglSurat').value
+    };
+
+    suratData[index].sppdData = currentSppdData;
+    await saveData(suratData);
+    const item = suratData[index];
+    const tglStart = item.sppdData.tglMulai;
+    const tglEnd = item.sppdData.tglAkhir;
+    let hariStr = getDayName(tglStart);
+    if (tglEnd && tglEnd !== tglStart) hariStr += " s.d. " + getDayName(tglEnd);
+    let tglStr = formatDateIndoOnly(tglStart);
+    if (tglEnd && tglEnd !== tglStart) tglStr += " s.d. " + formatDateIndoOnly(tglEnd);
+
+    const finalData = {
+        ...item,
+        dasar: item.sppdData.dasar || "-",
+        tempat: item.sppdData.tempat || "-",
+        hari_kegiatan: hariStr,
+        tanggal_kegiatan: tglStr,
+        jam_mulai: item.sppdData.jamMulai,
+        lama: item.sppdData.lama,
+        jabatan: item.sppdData.jabatan,
+        tanggal_berangkat: formatDateIndoOnly(item.sppdData.tglBerangkat),
+        tanggal_kembali: formatDateIndoOnly(item.sppdData.tglKembali),
+        tanggal_surat: formatDateIndoOnly(item.sppdData.tglSurat)
+    };
+    renderDocxTemplateSPPD(finalData);
+});
+
+document.getElementById('btnCloseSPPD').addEventListener('click', () => sppdModal.classList.remove('show'));
+
+function renderDocxTemplateSPPD(data) {
+    try {
+        const zip = new PizZip(templateSPPDBuffer);
+        const doc = new window.docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
+        doc.render({
+            nomor_surat: data.noSurat, dasar: data.dasar || "-", hal: data.keperluan, nama_guru: data.guru,
+            nip: data.nip, pangkat: data.pangkat || "-", jabatan: data.jabatan,
+            hari_kegiatan: data.hari_kegiatan, tanggal_kegiatan: data.tanggal_kegiatan,
+            tempat: data.tempat || "-", jam_mulai: data.jam_mulai, tanggal_surat: data.tanggal_surat,
+            lama: data.lama, tanggal_berangkat: data.tanggal_berangkat, tanggal_kembali: data.tanggal_kembali
+        });
+        const out = doc.getZip().generate({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+        const sanitize = (str) => str.replace(/[\\/:*?"<>|]/g, '-').trim();
+        saveAs(out, sanitize(data.noSurat) + '-' + sanitize(data.keperluan) + '-' + sanitize(data.guru) + '.docx');
+        showToast("✅ SPPD berhasil didownload!", "success");
+        sppdModal.classList.remove('show');
+    } catch (error) { alert("Error: " + error.message); }
+}
+
+window.openAktifMengajarModal = function(id) {
+    var item = suratData.find(function(d) { return d.id === id; });
+    if(!item) { alert("Data surat tidak ditemukan!"); return; }
+    document.getElementById('amNoSurat').value = item.noSurat || "";
+    document.getElementById('amNama').value = item.guru || "";
+    var guru = findGuruFuzzy(item.guru, item.nip);
+    if (guru) {
+        document.getElementById('amTtl').value = formatTTL(guru.tempatLahir, guru.tglLahir);
+        document.getElementById('amNuptk').value = guru.nuptk || "";
+        document.getElementById('amNip').value = guru.nip || "";
+        document.getElementById('amJabatan').value = guru.jabatan || "";
+        document.getElementById('amTmt').value = formatTMT(guru.tmt);
+        if (!document.getElementById('amPendidikan').value) document.getElementById('amPendidikan').value = "S1";
+    } else {
+        document.getElementById('amNip').value = item.nip || "";
+        document.getElementById('amJabatan').value = item.jabatan || "";
+    }
+    var amData = item.aktifMengajarData || {};
+    if (amData.ttl) document.getElementById('amTtl').value = amData.ttl;
+    if (amData.nuptk) document.getElementById('amNuptk').value = amData.nuptk;
+    if (amData.pendidikan) document.getElementById('amPendidikan').value = amData.pendidikan;
+    if (amData.jabatan) document.getElementById('amJabatan').value = amData.jabatan;
+    if (amData.jamMengajar) document.getElementById('amJamMengajar').value = amData.jamMengajar;
+    if (amData.tmt) document.getElementById('amTmt').value = amData.tmt;
+    document.getElementById('amTglSurat').value = amData.tglSurat || item.tgl_surat || new Date().toISOString().split('T')[0];
+    aktifMengajarModal.classList.add('show');
+};
+
+document.getElementById('btnDownloadAM').addEventListener('click', async function() {
+    if(!templateAMBuffer) {
+        alert("❌ Template Aktif Mengajar belum diupload!");
+        aktifMengajarModal.classList.remove('show');
+        templateModal.classList.add('show');
+        document.getElementById('templateJenisSelect').value = 'AM';
+        updateTemplatePlaceholder();
+        return;
+    }
+    const ttl = document.getElementById('amTtl').value.trim();
+    const nuptk = document.getElementById('amNuptk').value.trim();
+    const pendidikan = document.getElementById('amPendidikan').value;
+    const jabatan = document.getElementById('amJabatan').value.trim();
+    const jamMengajar = document.getElementById('amJamMengajar').value;
+    const tmt = document.getElementById('amTmt').value.trim();
+    const tglSurat = document.getElementById('amTglSurat').value;
+
+    if(!ttl || !nuptk || !pendidikan || !jabatan || !jamMengajar || !tmt || !tglSurat) {
+        alert("❌ Semua field wajib diisi!"); return;
+    }
+
+    const targetNoSurat = document.getElementById('amNoSurat').value;
+    const index = suratData.findIndex(d => d.noSurat === targetNoSurat);
+    if(index === -1) { alert("Data surat tidak ditemukan!"); return; }
+
+    suratData[index].aktifMengajarData = { ttl, nuptk, nip: document.getElementById('amNip').value, pendidikan, jabatan, jamMengajar, tmt, tglSurat };
+    await saveData(suratData);
+
+    const item = suratData[index];
+    renderDocxTemplateAktifMengajar({
+        nomor_surat: item.noSurat, nama_guru: item.guru, nip: item.aktifMengajarData.nip || item.nip || "-",
+        pangkat: item.pangkat || "-", ttl, nuptk, pendidikan, jabatan, jam_mengajar: jamMengajar, tmt, tanggal_surat: formatDateIndoOnly(tglSurat)
+    });
+});
+
+function renderDocxTemplateAktifMengajar(data) {
+    try {
+        const zip = new PizZip(templateAMBuffer);
+        const doc = new window.docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
+        doc.render(data);
+        const out = doc.getZip().generate({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+        const sanitize = (str) => str.replace(/[\\/:*?"<>|]/g, '-').trim();
+        saveAs(out, 'Surat_Aktif_Mengajar_' + sanitize(data.nama_guru) + '.docx');
+        showToast("🎉 Berhasil didownload!", "success");
+        aktifMengajarModal.classList.remove('show');
+    } catch (error) { alert("❌ Error: " + error.message); }
+}
+
+document.getElementById('btnCopySave').addEventListener('click', async function() {
+    suratData.unshift(tempSuratData);
+    const success = await saveData(suratData);
+    if(success) {
+        showToast("Data tersimpan!", "success");
+        applyFilters(); updateStats(); resetForm();
+        resultModal.classList.remove('show');
+    } else { showToast("Gagal menyimpan", "error"); }
+});
+
+document.getElementById('btnCancelModal').addEventListener('click', () => { resultModal.classList.remove('show'); tempSuratData = null; });
+
+document.getElementById('btnSecureReset').addEventListener('click', async function() {
+    const p = prompt("KODE ADMIN:");
+    if(p === "admin12345") {
+        if(confirm("Hapus SEMUA data?")) {
+            suratData = [];
+            await saveData(suratData);
+            applyFilters(); updateStats(); resetForm();
+            showToast("Data direset total", "success");
+        }
+    }
+});
+
+function renderTable() {
+    const dataSource = currentFilteredData;
+    tableBody.innerHTML = '';
+    if(dataSource.length === 0) {
+        emptyState.style.display = 'block'; emptyState.textContent = "BELUM ADA DATA ARSIP";
+        document.getElementById('paginationControls').style.display = 'none'; return;
+    }
+    emptyState.style.display = 'none';
+    document.getElementById('paginationControls').style.display = 'flex';
+
+    const start = (currentPage - 1) * rowsPerPage;
+    const pageData = dataSource.slice(start, start + rowsPerPage);
+
+    pageData.forEach(item => {
+        const tr = document.createElement('tr');
+        let dateDisplay = "-";
+        if(item.tgl_surat) { const d = new Date(item.tgl_surat); if(!isNaN(d.getTime())) dateDisplay = d.toLocaleDateString('id-ID'); }
+        let labelDisplay = item.jenisLabel || "-";
+        if(!item.jenisLabel) klasifikasiSurat.forEach(g => { const found = g.items.find(i => i.code === item.jenisCode); if(found) labelDisplay = found.label; });
+        
+        tr.innerHTML = '<td data-label="Nomor"><span class="badge-surat">' + item.noSurat + '</span></td><td data-label="Tanggal">' + dateDisplay + '</td><td data-label="Guru" style="font-weight:600;">' + item.guru + '</td><td data-label="Klasifikasi"><div style="font-size:0.7rem;color:var(--text-muted);font-family:monospace;">' + (item.jenisCode || '-') + '</div><div style="font-size:0.8rem;font-weight:500;">' + labelDisplay + '</div></td><td data-label="Perihal">' + item.keperluan + '</td><td data-label="Aksi" style="text-align:center;"><div style="display:flex;justify-content:center;gap:4px;flex-wrap:wrap;"><button onclick="editItem(' + item.id + ')" class="btn-action btn-edit" style="flex:1;">EDIT</button><button onclick="deleteItem(' + item.id + ')" class="btn-action btn-delete" style="flex:1;">HAPUS</button><div style="position:relative;flex:1.2;" class="dropdown-surat-wrapper"><button onclick="toggleSuratDropdown(event,' + item.id + ')" class="btn-action btn-sppd" style="width:100%;">📄 BUAT ▼</button><div id="dropdownSurat_' + item.id + '" class="dropdown-surat-menu" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface);border:2px solid var(--primary);z-index:100;margin-top:4px;overflow:hidden;"><button onclick="openSppdModal(' + item.id + ');closeAllDropdowns();" style="width:100%;padding:0.6rem 0.8rem;text-align:left;background:none;border:none;border-bottom:2px solid var(--border);color:var(--text-main);font-size:0.75rem;cursor:pointer;display:flex;align-items:center;gap:8px;font-weight:600;">📋 <span><strong>SPPD</strong><br><span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Perjalanan Dinas</span></span></button><button onclick="openAktifMengajarModal(' + item.id + ');closeAllDropdowns();" style="width:100%;padding:0.6rem 0.8rem;text-align:left;background:none;border:none;color:var(--text-main);font-size:0.75rem;cursor:pointer;display:flex;align-items:center;gap:8px;font-weight:600;">📚 <span><strong>AKTIF MENGAJAR</strong><br><span style="font-size:0.65rem;color:var(--text-muted);font-weight:400;">Keterangan Mengajar</span></span></button></div></div></div></td>';
+        tableBody.appendChild(tr);
+    });
+
+    const totalPages = Math.ceil(dataSource.length / rowsPerPage);
+    document.getElementById('pageInfo').textContent = 'HAL ' + currentPage + '/' + totalPages;
+    document.getElementById('prevPage').disabled = currentPage === 1;
+    document.getElementById('nextPage').disabled = currentPage === totalPages;
+}
+
+document.getElementById('prevPage').addEventListener('click', () => { if(currentPage > 1) { currentPage--; renderTable(); }});
+document.getElementById('nextPage').addEventListener('click', () => { const totalPages = Math.ceil(currentFilteredData.length / rowsPerPage); if(currentPage < totalPages) { currentPage++; renderTable(); }});
+
+function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = type === 'success' ? 'success show' : 'error show';
+    setTimeout(() => t.className = t.className.replace('show', ''), 3000);
+}
+
+function backupData() {
+    const dataStr = JSON.stringify(suratData, null, 2);
+    const blob = new Blob([dataStr], {type:"application/json"});
+    saveAs(blob, 'backup_arsip_' + new Date().toISOString().split('T')[0] + '.json');
+}
+
+function restoreData(input) {
+    const file = input.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            if(Array.isArray(data)) {
+                if(confirm("Data akan DITIMPA TOTAL! Lanjutkan?")) {
+                    suratData = data; await saveData(suratData); applyFilters(); updateStats();
+                    showToast("✅ Data berhasil direstore!", "success");
+                }
+            } else throw new Error("Format salah");
+        } catch(err) { showToast("❌ File JSON tidak valid!", "error"); }
+    };
+    reader.readAsText(file); input.value = "";
+}
+
+function updateStats() {
+    document.getElementById('statTotal').textContent = suratData.length;
+    const now = new Date(); const thisMonth = now.getMonth(); const thisYear = now.getFullYear();
+    const countMonth = suratData.filter(item => { const d = new Date(item.tgl_surat); return d.getMonth() === thisMonth && d.getFullYear() === thisYear; }).length;
+    document.getElementById('statMonth').textContent = countMonth;
+    const uniqueGurus = [...new Set(suratData.map(item => item.guru))];
+    document.getElementById('statActiveGuru').textContent = uniqueGurus.length;
+}
+
+function openAdminLogin() {
+    if (sessionStorage.getItem('isAdminLogged') === 'true') {
+        document.getElementById('adminPanel').classList.remove('hidden');
+        showToast("Panel admin sudah terbuka", "success");
+    } else {
+        document.getElementById('adminPassInput').value = ""; 
+        document.getElementById('adminModal').classList.add('show');
+        document.getElementById('adminPassInput').focus();
+    }
+}
+
+function handleEnterAdmin(event) { if (event.key === "Enter") verifyAdminPassword(); }
+
+async function verifyAdminPassword() {
+    const password = document.getElementById('adminPassInput').value;
+    const btn = document.querySelector('#adminModal .btn-primary');
+    const originalText = btn.textContent;
+    if(!password) return showToast("Password kosong!", "error");
+    btn.textContent = "MEMERIKSA..."; btn.disabled = true;
+    try {
+        const res = await fetch(API_BASE_URL + '/api/verify-admin', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ password: password }) });
+        const data = await res.json();
+        if (data.success) {
+            sessionStorage.setItem('isAdminLogged', 'true');
+            document.getElementById('adminModal').classList.remove('show');
+            document.getElementById('adminPanel').classList.remove('hidden');
+            const btnGuru = document.getElementById('btnManageGuru');
+            if(btnGuru) btnGuru.classList.remove('hidden');
+            showToast("✅ AKSES DIBERIKAN!", "success");
+        } else {
+            showToast("❌ PASSWORD SALAH!", "error");
+            document.getElementById('adminPassInput').value = "";
+            document.getElementById('adminPassInput').focus();
+        }
+    } catch (e) { showToast("Error server", "error"); }
+    finally { btn.textContent = originalText; btn.disabled = false; }
+}
+
+function checkAdminSession() {
+    if (sessionStorage.getItem('isAdminLogged') === 'true') {
+        document.getElementById('adminPanel').classList.remove('hidden');
+        const btnGuru = document.getElementById('btnManageGuru');
+        if(btnGuru) btnGuru.classList.remove('hidden');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    try { await init(); checkAdminSession(); } catch (error) { console.error(error); alert("Gagal memuat aplikasi."); }
+});
+</script>
+</body>
+</html>
